@@ -2,11 +2,11 @@
  * Copyright: JessMA Open Source (ldcsaa@gmail.com)
  *
  * Author	: Bruce Liang
- * Website	: http://www.jessma.org
- * Project	: https://github.com/ldcsaa
+ * Website	: https://github.com/ldcsaa
+ * Project	: https://github.com/ldcsaa/HP-Socket
  * Blog		: http://www.cnblogs.com/ldcsaa
  * Wiki		: http://www.oschina.net/p/hp-socket
- * QQ Group	: 75375912, 44636872
+ * QQ Group	: 44636872, 75375912
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,6 @@
 #include "HttpHelper.h"
 
 #ifdef _HTTP_SUPPORT
-
-#if !defined(z_const)
-	#define z_const
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -237,6 +233,53 @@ void MakeHttpPacket(const CStringA& strHeader, const BYTE* pBody, int iLength, W
 	szBuffer[0].len = strHeader.GetLength();
 	szBuffer[1].buf = (LPBYTE)pBody;
 	szBuffer[1].len = iLength;
+}
+
+int MakeChunkPackage(const BYTE* pData, int iLength, LPCSTR lpszExtensions, char szLen[12], WSABUF bufs[5])
+{
+	ASSERT(iLength == 0 || pData != nullptr);
+
+	int i = 0;
+
+	if(::IsStrEmptyA(lpszExtensions))
+	{
+		sprintf(szLen, "%x" HTTP_CRLF, iLength);
+
+		bufs[i].buf = (LPBYTE)szLen;
+		bufs[i].len = (int)strlen(szLen);
+		++i;
+	}
+	else
+	{
+		LPCSTR lpszSep = lpszExtensions[0] == ';' ? " " : " ;";
+
+		sprintf(szLen, "%x%s", iLength, lpszSep);
+
+		bufs[i].buf = (LPBYTE)szLen;
+		bufs[i].len = (int)strlen(szLen);
+		++i;
+
+		bufs[i].buf = (LPBYTE)lpszExtensions;
+		bufs[i].len = (int)strlen(lpszExtensions);
+		++i;
+
+		bufs[i].buf = (LPBYTE)HTTP_CRLF;
+		bufs[i].len = 2;
+		++i;
+	}
+
+	if(iLength > 0)
+	{
+		bufs[i].buf = (LPBYTE)pData;
+		bufs[i].len = iLength;
+		++i;
+	}
+
+	bufs[i].buf = (LPBYTE)HTTP_CRLF;
+	bufs[i].len = 2;
+	++i;
+
+	return i;
 }
 
 BOOL MakeWSPacket(BOOL bFinal, BYTE iReserved, BYTE iOperationCode, const BYTE lpszMask[4], BYTE* pData, int iLength, ULONGLONG ullBodyLen, BYTE szHeader[HTTP_MAX_WS_HEADER_LEN], WSABUF szBuffer[2])

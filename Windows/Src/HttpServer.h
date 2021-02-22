@@ -1,12 +1,12 @@
-/*
+﻿/*
  * Copyright: JessMA Open Source (ldcsaa@gmail.com)
  *
  * Author	: Bruce Liang
- * Website	: http://www.jessma.org
- * Project	: https://github.com/ldcsaa
+ * Website	: https://github.com/ldcsaa
+ * Project	: https://github.com/ldcsaa/HP-Socket
  * Blog		: http://www.cnblogs.com/ldcsaa
  * Wiki		: http://www.oschina.net/p/hp-socket
- * QQ Group	: 75375912, 44636872
+ * QQ Group	: 44636872, 75375912
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 
 #include "TcpServer.h"
 #include "HttpHelper.h"
-#include "../Common/Src/Thread.h"
+#include "Common/Thread.h"
 
 #ifdef _HTTP_SUPPORT
 
@@ -44,20 +44,20 @@ public:
 
 	virtual BOOL SendResponse(CONNID dwConnID, USHORT usStatusCode, LPCSTR lpszDesc = nullptr, const THeader lpHeaders[] = nullptr, int iHeaderCount = 0, const BYTE* pData = nullptr, int iLength = 0);
 	virtual BOOL SendLocalFile(CONNID dwConnID, LPCSTR lpszFileName, USHORT usStatusCode = HSC_OK, LPCSTR lpszDesc = nullptr, const THeader lpHeaders[] = nullptr, int iHeaderCount = 0);
+	virtual BOOL SendChunkData(CONNID dwConnID, const BYTE* pData = nullptr, int iLength = 0, LPCSTR lpszExtensions = nullptr);
 
 	virtual BOOL Release(CONNID dwConnID);
 
-	virtual BOOL SendWSMessage(CONNID dwConnID, BOOL bFinal, BYTE iReserved, BYTE iOperationCode, const BYTE lpszMask[4] = nullptr, BYTE* pData = nullptr, int iLength = 0, ULONGLONG ullBodyLen = 0);
+	virtual BOOL SendWSMessage(CONNID dwConnID, BOOL bFinal, BYTE iReserved, BYTE iOperationCode, const BYTE* pData = nullptr, int iLength = 0, ULONGLONG ullBodyLen = 0);
 
 	virtual BOOL StartHttp(CONNID dwConnID);
 
 public:
-	virtual void SetHttpAutoStart(BOOL bAutoStart)				{m_bHttpAutoStart = bAutoStart;}
-	virtual BOOL IsHttpAutoStart()								{return m_bHttpAutoStart;}
+	virtual void SetHttpAutoStart(BOOL bAutoStart)				{ENSURE_HAS_STOPPED(); m_bHttpAutoStart = bAutoStart;}
+	virtual void SetLocalVersion(EnHttpVersion enLocalVersion)	{ENSURE_HAS_STOPPED(); m_enLocalVersion = enLocalVersion;}
+	virtual void SetReleaseDelay(DWORD dwReleaseDelay)			{ENSURE_HAS_STOPPED(); m_dwReleaseDelay = dwReleaseDelay;}
 
-	virtual void SetLocalVersion(EnHttpVersion enLocalVersion)	{m_enLocalVersion = enLocalVersion;}
-	virtual void SetReleaseDelay(DWORD dwReleaseDelay)			{m_dwReleaseDelay = dwReleaseDelay;}
-
+	virtual BOOL IsHttpAutoStart			()					{return m_bHttpAutoStart;}
 	virtual EnHttpVersion GetLocalVersion	()					{return m_enLocalVersion;}
 	virtual DWORD GetReleaseDelay			()					{return m_dwReleaseDelay;}
 
@@ -88,7 +88,7 @@ public:
 
 private:
 	BOOL StartHttp(TSocketObj* pSocketObj);
-	void DoStartHttp(TSocketObj* pSocketObj);
+	THttpObj* DoStartHttp(TSocketObj* pSocketObj);
 
 private:
 	virtual BOOL CheckParams();

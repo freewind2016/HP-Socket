@@ -28,6 +28,11 @@ VER_MINOR=
 VER_REVISE=
 VER_BUILD=
 
+DEPT_INC_DIR=
+DEPT_LIB_DIR=
+HPSOCKET_LIB_TARGET_DIR=
+HPSOCKET4C_LIB_TARGET_DIR=
+
 read_confirm()
 {
 	while true; do
@@ -58,10 +63,12 @@ check_platform()
 	
 	if [ "$1" == "x86_64" ]; then
 		PLATFORM="x64"
-	elif [[ "$1" == "i686" || "$1" == "i386" ]]; then
+	elif [[ "$1" == "x86" || "$1" == "i686" || "$1" == "i586" || "$1" == "i386" ]]; then
 		PLATFORM="x86"
-	elif [[ "$1" =~ "arm" ]]; then
-		PLATFORM="ARM"
+	elif [[ "$1" == "arm64" || "$1" == "aarch64" || "$1" =~ "armv8"  || "$1" =~ "armv9" ]]; then
+		PLATFORM="arm64"
+	elif [[ "$1" == "arm" || "$1" == "aarch" || "$1" =~ "armv7" ]]; then
+		PLATFORM="arm"
 	fi
 }
 
@@ -95,6 +102,17 @@ parse_envs()
 	VER_MINOR=$(parse_version "$VER_MINOR_MICRO")
 	VER_REVISE=$(parse_version "$VER_REVISE_MICRO")
 	VER_BUILD=$(parse_version "$VER_BUILD_MICRO")
+	
+	reset_env_args
+}
+
+reset_env_args()
+{
+	HPSOCKET_LIB_TARGET_DIR=$HPSOCKET_LIB_DIR/$PLATFORM
+	HPSOCKET4C_LIB_TARGET_DIR=$HPSOCKET4C_LIB_DIR/$PLATFORM
+
+	DEPT_INC_DIR=$DEPT_DIR/$PLATFORM/$INC_DIR
+	DEPT_LIB_DIR=$DEPT_DIR/$PLATFORM/$LIB_DIR
 }
 
 remove_file()
@@ -121,9 +139,3 @@ bool_to_int()
 cd $PACKAGE_PATH
 
 parse_envs
-
-HPSOCKET_LIB_TARGET_DIR=$HPSOCKET_LIB_DIR/$PLATFORM
-HPSOCKET4C_LIB_TARGET_DIR=$HPSOCKET4C_LIB_DIR/$PLATFORM
-
-DEPT_INC_DIR=$DEPT_DIR/$PLATFORM/$INC_DIR
-DEPT_LIB_DIR=$DEPT_DIR/$PLATFORM/$LIB_DIR

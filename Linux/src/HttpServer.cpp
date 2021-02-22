@@ -2,11 +2,11 @@
  * Copyright: JessMA Open Source (ldcsaa@gmail.com)
  *
  * Author	: Bruce Liang
- * Website	: http://www.jessma.org
- * Project	: https://github.com/ldcsaa
+ * Website	: https://github.com/ldcsaa
+ * Project	: https://github.com/ldcsaa/HP-Socket
  * Blog		: http://www.cnblogs.com/ldcsaa
  * Wiki		: http://www.oschina.net/p/hp-socket
- * QQ Group	: 75375912, 44636872
+ * QQ Group	: 44636872, 75375912
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,6 +85,16 @@ template<class T, USHORT default_port> BOOL CHttpServerT<T, default_port>::SendL
 	return SendResponse(dwConnID, usStatusCode, lpszDesc, lpHeaders, iHeaderCount, (BYTE*)fmap, (int)fmap.Size());
 }
 
+template<class T, USHORT default_port> BOOL CHttpServerT<T, default_port>::SendChunkData(CONNID dwConnID, const BYTE* pData, int iLength, LPCSTR lpszExtensions)
+{
+	char szLen[12];
+	WSABUF bufs[5];
+
+	int iCount = MakeChunkPackage(pData, iLength, lpszExtensions, szLen, bufs);
+
+	return SendPackets(dwConnID, bufs, iCount);
+}
+
 template<class T, USHORT default_port> BOOL CHttpServerT<T, default_port>::Release(CONNID dwConnID)
 {
 	if(!HasStarted())
@@ -102,12 +112,12 @@ template<class T, USHORT default_port> BOOL CHttpServerT<T, default_port>::Relea
 	return TRUE;
 }
 
-template<class T, USHORT default_port> BOOL CHttpServerT<T, default_port>::SendWSMessage(CONNID dwConnID, BOOL bFinal, BYTE iReserved, BYTE iOperationCode, const BYTE lpszMask[4], BYTE* pData, int iLength, ULONGLONG ullBodyLen)
+template<class T, USHORT default_port> BOOL CHttpServerT<T, default_port>::SendWSMessage(CONNID dwConnID, BOOL bFinal, BYTE iReserved, BYTE iOperationCode, const BYTE* pData, int iLength, ULONGLONG ullBodyLen)
 {
 	WSABUF szBuffer[2];
 	BYTE szHeader[HTTP_MAX_WS_HEADER_LEN];
 
-	if(!::MakeWSPacket(bFinal, iReserved, iOperationCode, lpszMask, pData, iLength, ullBodyLen, szHeader, szBuffer))
+	if(!::MakeWSPacket(bFinal, iReserved, iOperationCode, nullptr, (BYTE*)pData, iLength, ullBodyLen, szHeader, szBuffer))
 		return FALSE;
 
 	return SendPackets(dwConnID, szBuffer, 2);
@@ -213,10 +223,14 @@ template<class T, USHORT default_port> EnHandleResult CHttpServerT<T, default_po
 
 template<class T, USHORT default_port> EnHandleResult CHttpServerT<T, default_port>::DoFireAccept(TSocketObj* pSocketObj)
 {
+	THttpObj* pHttpObj	  = DoStartHttp(pSocketObj);
 	EnHandleResult result = __super::DoFireAccept(pSocketObj);
 
-	if(result != HR_ERROR)
-		DoStartHttp(pSocketObj);
+	if(result == HR_ERROR)
+	{
+		m_objPool.PutFreeHttpObj(pHttpObj);
+		SetConnectionReserved(pSocketObj, nullptr);
+	}
 
 	return result;
 }
@@ -261,7 +275,10 @@ template<class T, USHORT default_port> EnHandleResult CHttpServerT<T, default_po
 	THttpObj* pHttpObj = FindHttpObj(pSocketObj);
 
 	if(pHttpObj != nullptr)
+	{
 		m_objPool.PutFreeHttpObj(pHttpObj);
+		SetConnectionReserved(pSocketObj, nullptr);
+	}
 
 	return result;
 }
@@ -566,11 +583,14 @@ template<class T, USHORT default_port> BOOL CHttpServerT<T, default_port>::Start
 	return TRUE;
 }
 
-template<class T, USHORT default_port> void CHttpServerT<T, default_port>::DoStartHttp(TSocketObj* pSocketObj)
+template<class T, USHORT default_port> typename CHttpServerT<T, default_port>::THttpObj* CHttpServerT<T, default_port>::DoStartHttp(TSocketObj* pSocketObj)
 {
 	THttpObj* pHttpObj = m_objPool.PickFreeHttpObj(this, pSocketObj);
 	VERIFY(SetConnectionReserved(pSocketObj, pHttpObj));
+
+	return pHttpObj;
 }
+
 // ------------------------------------------------------------------------------------------------------------- //
 
 template class CHttpServerT<CTcpServer, HTTP_DEFAULT_PORT>;

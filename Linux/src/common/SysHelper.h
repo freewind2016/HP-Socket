@@ -1,12 +1,12 @@
-﻿/*
+/*
 * Copyright: JessMA Open Source (ldcsaa@gmail.com)
 *
 * Author	: Bruce Liang
-* Website	: http://www.jessma.org
-* Project	: https://github.com/ldcsaa
+* Website	: https://github.com/ldcsaa
+* Project	: https://github.com/ldcsaa/HP-Socket
 * Blog		: http://www.cnblogs.com/ldcsaa
 * Wiki		: http://www.oschina.net/p/hp-socket
-* QQ Group	: 75375912, 44636872
+* QQ Group	: 44636872, 75375912
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "GlobalDef.h"
+#include "../../include/hpsocket/GlobalDef.h"
 
 #include <unistd.h>
 #include <sched.h>
@@ -35,7 +35,7 @@
 using namespace std;
 
 /* 最大工作线程数 */
-#define MAX_WORKER_THREAD_COUNT			500
+#define MAX_WORKER_THREAD_COUNT			512
 /* 默认对象缓存对象锁定时间 */
 #define DEFAULT_OBJECT_CACHE_LOCK_TIME	(20 * 1000)
 /* 默认对象缓存池大小 */
@@ -93,6 +93,8 @@ inline void __asm_pause()				{__asm_nop();}
 #define SwitchToThread					sched_yield
 
 DWORD GetSysPageSize();
+DWORD GetKernelVersion();
+BOOL IsKernelVersionAbove(BYTE major, BYTE minor, BYTE revise);
 DWORD GetDefaultWorkerThreadCount();
 
 

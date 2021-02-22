@@ -127,7 +127,10 @@
     <ClCompile Include="..\..\..\src\common\Event.cpp" />
     <ClCompile Include="..\..\..\src\common\FileHelper.cpp" />
     <ClCompile Include="..\..\..\src\common\FuncHelper.cpp" />
-    <ClCompile Include="..\..\..\src\common\http\http_parser.c" />
+    <ClCompile Include="..\..\..\src\common\http\llhttp_api.c" />
+    <ClCompile Include="..\..\..\src\common\http\llhttp_internal.c" />
+    <ClCompile Include="..\..\..\src\common\http\llhttp_support.c" />
+    <ClCompile Include="..\..\..\src\common\http\llhttp_url.c" />
     <ClCompile Include="..\..\..\src\common\IODispatcher.cpp" />
     <ClCompile Include="..\..\..\src\common\PollHelper.cpp" />
     <ClCompile Include="..\..\..\src\common\RWLock.cpp" />
@@ -152,9 +155,10 @@
     <ClInclude Include="..\..\..\src\common\FileHelper.h" />
     <ClInclude Include="..\..\..\src\common\FuncHelper.h" />
     <ClInclude Include="..\..\..\src\common\GeneralHelper.h" />
-    <ClInclude Include="..\..\..\src\common\GlobalDef.h" />
-    <ClInclude Include="..\..\..\src\common\GlobalErrno.h" />
-    <ClInclude Include="..\..\..\src\common\http\http_parser.h" />
+    <ClInclude Include="..\..\..\include\hpsocket\GlobalDef.h" />
+    <ClInclude Include="..\..\..\include\hpsocket\GlobalErrno.h" />
+    <ClInclude Include="..\..\..\src\common\http\llhttp.h" />
+    <ClInclude Include="..\..\..\src\common\http\llhttp_url.h" />
     <ClInclude Include="..\..\..\src\common\IODispatcher.h" />
     <ClInclude Include="..\..\..\src\common\PollHelper.h" />
     <ClInclude Include="..\..\..\src\common\PrivateHeap.h" />
@@ -167,12 +171,12 @@
     <ClInclude Include="..\..\..\src\common\StringT.h" />
     <ClInclude Include="..\..\..\src\common\SysHelper.h" />
     <ClInclude Include="..\..\..\src\common\Thread.h" />
-    <ClInclude Include="..\..\..\src\HPTypeDef.h" />
+    <ClInclude Include="..\..\..\include\hpsocket\HPTypeDef.h" />
     <ClInclude Include="..\..\..\src\HttpAgent.h" />
     <ClInclude Include="..\..\..\src\HttpCookie.h" />
     <ClInclude Include="..\..\..\src\HttpHelper.h" />
     <ClInclude Include="..\..\..\src\SocketHelper.h" />
-    <ClInclude Include="..\..\..\src\SocketInterface.h" />
+    <ClInclude Include="..\..\..\include\hpsocket\SocketInterface.h" />
     <ClInclude Include="..\..\..\src\SSLAgent.h" />
     <ClInclude Include="..\..\..\src\SSLHelper.h" />
     <ClInclude Include="..\..\..\src\TcpAgent.h" />
@@ -180,87 +184,87 @@
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <CppAdditionalWarning>no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
+      <CppAdditionalWarning>no-class-memaccess;no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
       <SymbolsHiddenByDefault>true</SymbolsHiddenByDefault>
       <AdditionalIncludeDirectories>../../../dependent/$(Platform)/include;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_NEED_SSL;_NEED_HTTP;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_UDP_DISABLED;_NEED_SSL;_NEED_HTTP;</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>ssl;crypto;z;rt;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>ssl;crypto;z;brotli;rt;dl;pthread</LibraryDependencies>
       <AdditionalLibraryDirectories>../../../dependent/$(Platform)/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>-L"$(RemoteRootDir)/../dependent/$(Platform)/lib" %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
-      <CppAdditionalWarning>no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
+      <CppAdditionalWarning>no-class-memaccess;no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SymbolsHiddenByDefault>true</SymbolsHiddenByDefault>
       <AdditionalIncludeDirectories>../../../dependent/$(Platform)/include;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_NEED_SSL;_NEED_HTTP;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_UDP_DISABLED;_NEED_SSL;_NEED_HTTP;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>jemalloc_pic;ssl;crypto;z;rt;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>mimalloc;ssl;crypto;z;brotli;rt;dl;pthread</LibraryDependencies>
       <AdditionalLibraryDirectories>../../../dependent/$(Platform)/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>-L"$(RemoteRootDir)/../dependent/$(Platform)/lib" %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <CppAdditionalWarning>no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
+      <CppAdditionalWarning>no-class-memaccess;no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
       <SymbolsHiddenByDefault>true</SymbolsHiddenByDefault>
       <AdditionalIncludeDirectories>../../../dependent/$(Platform)/include;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_NEED_SSL;_NEED_HTTP;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_UDP_DISABLED;_NEED_SSL;_NEED_HTTP;</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>ssl;crypto;z;rt;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>ssl;crypto;z;brotli;rt;dl;pthread</LibraryDependencies>
       <AdditionalLibraryDirectories>../../../dependent/$(Platform)/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>-L"$(RemoteRootDir)/../dependent/$(Platform)/lib" %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <CppAdditionalWarning>no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
+      <CppAdditionalWarning>no-class-memaccess;no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SymbolsHiddenByDefault>true</SymbolsHiddenByDefault>
       <AdditionalIncludeDirectories>../../../dependent/$(Platform)/include;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_NEED_SSL;_NEED_HTTP;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_UDP_DISABLED;_NEED_SSL;_NEED_HTTP;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>jemalloc_pic;ssl;crypto;z;rt;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>mimalloc;ssl;crypto;z;brotli;rt;dl;pthread</LibraryDependencies>
       <AdditionalLibraryDirectories>../../../dependent/$(Platform)/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>-L"$(RemoteRootDir)/../dependent/$(Platform)/lib" %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <ClCompile>
-      <CppAdditionalWarning>no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
+      <CppAdditionalWarning>no-class-memaccess;no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
       <SymbolsHiddenByDefault>true</SymbolsHiddenByDefault>
       <AdditionalIncludeDirectories>../../../dependent/$(Platform)/include;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_NEED_SSL;_NEED_HTTP;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_UDP_DISABLED;_NEED_SSL;_NEED_HTTP;</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>ssl;crypto;z;rt;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>ssl;crypto;z;brotli;rt;dl;pthread</LibraryDependencies>
       <AdditionalLibraryDirectories>../../../dependent/$(Platform)/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>-L"$(RemoteRootDir)/../dependent/$(Platform)/lib" %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <ClCompile>
-      <CppAdditionalWarning>no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
+      <CppAdditionalWarning>no-class-memaccess;no-reorder;switch;no-deprecated-declarations;empty-body;conversion;return-type;parentheses;no-format;uninitialized;unreachable-code;unused-function;unused-value;unused-variable;%(CppAdditionalWarning)</CppAdditionalWarning>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SymbolsHiddenByDefault>true</SymbolsHiddenByDefault>
       <AdditionalIncludeDirectories>../../../dependent/$(Platform)/include;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_NEED_SSL;_NEED_HTTP;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_UDP_DISABLED;_NEED_SSL;_NEED_HTTP;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>jemalloc_pic;ssl;crypto;z;rt;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>mimalloc;ssl;crypto;z;brotli;rt;dl;pthread</LibraryDependencies>
       <AdditionalLibraryDirectories>../../../dependent/$(Platform)/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>-L"$(RemoteRootDir)/../dependent/$(Platform)/lib" %(AdditionalOptions)</AdditionalOptions>
     </Link>

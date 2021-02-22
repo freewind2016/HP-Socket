@@ -1,12 +1,12 @@
-/*
+﻿/*
  * Copyright: JessMA Open Source (ldcsaa@gmail.com)
  *
  * Author	: Bruce Liang
- * Website	: http://www.jessma.org
- * Project	: https://github.com/ldcsaa
+ * Website	: https://github.com/ldcsaa
+ * Project	: https://github.com/ldcsaa/HP-Socket
  * Blog		: http://www.cnblogs.com/ldcsaa
  * Wiki		: http://www.oschina.net/p/hp-socket
- * QQ Group	: 75375912, 44636872
+ * QQ Group	: 44636872, 75375912
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
  */
  
 #include "stdafx.h"
-#include "HPSocket-SSL.h"
+#include "../Include/HPSocket/HPSocket-SSL.h"
 
 #ifdef _SSL_SUPPORT
 
@@ -139,6 +139,11 @@ HPSOCKET_API void HP_Destroy_SSLPackClient(ITcpPackClient* pClient)
 /*****************************************************************************************************************************************************/
 /*************************************************************** Global Function Exports *************************************************************/
 /*****************************************************************************************************************************************************/
+
+HPSOCKET_API int __HP_CALL HP_SSL_DefaultServerNameCallback(LPCTSTR lpszServerName, PVOID pContext)
+{
+	return CSSLContext::DefaultServerNameCallback(lpszServerName, pContext);
+}
 
 HPSOCKET_API void HP_SSL_RemoveThreadLocalState(DWORD dwThreadID)
 {
