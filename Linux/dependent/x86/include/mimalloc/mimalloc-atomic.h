@@ -118,7 +118,7 @@ static inline void mi_atomic_maxi64_relaxed(volatile int64_t* p, int64_t x) {
 
 // MSVC C compilation wrapper that uses Interlocked operations to model C11 atomics.
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include <windows.h>
 #include <intrin.h>
 #ifdef _WIN64
 typedef LONG64   msc_intptr_t;
@@ -281,17 +281,41 @@ static inline void mi_atomic_yield(void) {
 static inline void mi_atomic_yield(void) {
   YieldProcessor();
 }
+#elif defined(__SSE2__)
+#include <emmintrin.h>
+static inline void mi_atomic_yield(void) {
+  _mm_pause();
+}
 #elif (defined(__GNUC__) || defined(__clang__)) && \
-      (defined(__x86_64__) || defined(__i386__) || defined(__arm__) || defined(__aarch64__))
+      (defined(__x86_64__) || defined(__i386__) || defined(__arm__) || defined(__armel__) || defined(__ARMEL__) || \
+       defined(__aarch64__) || defined(__powerpc__) || defined(__ppc__) || defined(__PPC__))
 #if defined(__x86_64__) || defined(__i386__)
 static inline void mi_atomic_yield(void) {
   __asm__ volatile ("pause" ::: "memory");
 }
-#elif defined(__arm__) || defined(__aarch64__)
+#elif defined(__aarch64__)
 static inline void mi_atomic_yield(void) {
-  __asm__ volatile("yield");
+  __asm__ volatile("wfe");
+}
+#elif (defined(__arm__) && __ARM_ARCH__ >= 7)
+static inline void mi_atomic_yield(void) {
+  __asm__ volatile("yield" ::: "memory");
+}
+#elif defined(__powerpc__) || defined(__ppc__) || defined(__PPC__)
+static inline void mi_atomic_yield(void) {
+  __asm__ __volatile__ ("or 27,27,27" ::: "memory");
+}
+#elif defined(__armel__) || defined(__ARMEL__)
+static inline void mi_atomic_yield(void) {
+  __asm__ volatile ("nop" ::: "memory");
 }
 #endif
+#elif defined(__sun)
+// Fallback for other archs
+#include <synch.h>
+static inline void mi_atomic_yield(void) {
+  smt_pause();
+}
 #elif defined(__wasi__)
 #include <sched.h>
 static inline void mi_atomic_yield(void) {
